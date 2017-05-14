@@ -51,4 +51,12 @@ class IkvmPluginTest {
         def cmd = project.ikvm.commandLineArgs
         assertTrue(cmd.contains(project.jar.archivePath))
     }
+
+    @Test
+    public void commandLineContainsMonkeyJar() {
+        Project project = ProjectBuilder.builder().build()
+        project.apply plugin: 'NugetMonkey'
+        def cmd = project.NugetMonkey.commandLineArgs
+        assertTrue(cmd.contains(project.jar.archivePath))
+    }
 }

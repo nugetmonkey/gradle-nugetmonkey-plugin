@@ -55,10 +55,14 @@ More options:
     ikvm {
         // If defined, the plugin will use IKVM_HOME environment variable ...
         // ... otherwise it will download (& cache) Ikvm release zip from official download links (sourceforge & www.frijters.net) ...
-        ikvmVersion = '7.2.4630.4'
+        ikvmVersion = '8.1.5717.0'
 
         // ... but you can also specify the Ikvm folder yourself then this will be used.
         ikvmHome = '../ikvm-0.46.0.1'
+
+        ikvmDownloadPath = 'https://vorboss.dl.sourceforge.net/project/ikvm/ikvm/${version}/ikvmbin-${version}.zip'
+
+        ikvmDownloadPath = 'http://downloads.sourceforge.net/project/ikvm/ikvm/${version}/ikvmbin-${version}.zip'
 
         // Below values have sensible __defaults__ but can be overriden
 

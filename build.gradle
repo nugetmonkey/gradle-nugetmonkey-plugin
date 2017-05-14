@@ -8,9 +8,10 @@ plugins {
 apply plugin: 'groovy'
 
 group = 'com.ullink.gradle'
-description 'gradle-ikvm-plugin is a Gradle plugin for IKVM artifact compilation'
+description 'gradle-nugetmonkey-plugin is a Gradle plugin for IKVM artifact compilation'
 
-sourceCompatibility = 1.6
+sourceCompatibility = 1.8
+targetCompatibility = 1.8
 
 dependencies {
     compile fileTree(dir: "${gradle.gradleHomeDir}/lib/plugins", include: "gradle-plugins-*.jar")
@@ -31,12 +32,12 @@ bintray {
 }
 
 plugindev {
-    pluginId 'com.ullink.ikvm'
-    pluginName 'com.ullink.gradle:gradle-ikvm-plugin'
-    pluginImplementationClass 'com.ullink.IkvmPlugin'
+    pluginId 'com.ullink.nugetmonkey'
+    pluginName 'com.ullink.gradle:gradle-nugetmonkey-plugin'
+    pluginImplementationClass 'com.ullink.NugetMonkey'
     pluginDescription project.description
     pluginLicenses 'Apache-2.0'
-    pluginTags 'gradle', 'ikvm', 'java'
+    pluginTags 'gradle', 'ikvm', 'java', 'nuget'
     authorId 'gluck'
     authorName 'Francois Valdy'
     authorEmail 'francois.valdy@gmail.com'

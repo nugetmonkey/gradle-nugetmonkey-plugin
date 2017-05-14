@@ -3,6 +3,7 @@ package com.ullink
 import org.apache.commons.codec.digest.DigestUtils
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang3.StringUtils
+import org.gradle.api.Task
 import org.gradle.api.artifacts.Configuration;
 import org.gradle.api.internal.ConventionTask
 import org.gradle.api.tasks.InputFile
@@ -16,6 +17,7 @@ class Ikvm extends ConventionTask {
     public static final String IKVM_EXE = 'bin/ikvmc.exe'
     def ikvmHome
     def ikvmVersion
+    def ikvmDownloadPath
     def destinationDir
     String assemblyName
     boolean debug = true
@@ -38,6 +40,8 @@ class Ikvm extends ConventionTask {
 
     @InputFiles
     def jars
+    @InputFiles
+    def refs
 
     Ikvm() {
         conventionMapping.map "destinationDir", { project.jar.destinationDir }
@@ -239,10 +243,11 @@ class Ikvm extends ConventionTask {
 
         commandLineArgs += getJars()
         commandLineArgs += getReferences().collect{"-reference:${it}"}
+        commandLineArgs += getRefs().collect{"-reference:${it}"}
 
         return commandLineArgs;
     }
-    
+
     @TaskAction
     def build() {
         File debugFile = getDestinationDebugFile()
