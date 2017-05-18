@@ -182,8 +182,9 @@ class Ikvm extends ConventionTask {
         commandLineArgs += "-out:${destFile}"
 
         def version = getVersion().replaceAll("[^0-9.]+", "")
-        commandLineArgs += "-version:${version}"
-
+        if(version) {
+            commandLineArgs += "-version:${version}"
+        }
         if (fileVersion) {
             commandLineArgs += "-fileversion:${fileVersion}"
         }

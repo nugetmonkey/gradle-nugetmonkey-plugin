@@ -40,10 +40,11 @@ class NugetMonkey extends Ikvm {
 //                                  && childResolvedDep.getConfiguration() == 'compile') {
                             addToJson(childResolvedDep)
 
-                            def cd = childResolvedDep.getModuleArtifacts()[0].file.getName()
+                            def fl = childResolvedDep.getModuleArtifacts()[0].file;
+                            def cd = fl.getName()
                             String cdWe = cd.take(cd.lastIndexOf('.'))
 
-                            String dll = cdWe  + ".dll"
+                            String dll = destinationDir.getAbsolutePath()  + "/" + cdWe  + ".dll"
                             depMap.dll = dll
                     }
                     if (jsonOutput[-1] == ',') {
@@ -74,14 +75,14 @@ class NugetMonkey extends Ikvm {
 //                  }
 //                  println fileWithoutExt
 
-                new FileNameFinder().getFileNames('.',  '*.dll') .each { String fn ->
+                new FileNameFinder().getFileNames(destinationDir.getAbsolutePath()  ,  '*.dll') .each { String fn ->
                     File f = new File(fn);
                     def checkDep = f.getName();
                     String fileWithoutExtCheck = checkDep.take(checkDep.lastIndexOf('.'));
 //                      println fileWithoutExtCheck
                     if (!f.getName().toLowerCase().contains("native")
                             && f.getAbsolutePath().toLowerCase().endsWith(".dll")
-                            && !fileWithoutExt!=(fileWithoutExtCheck)) {
+                            && (fileWithoutExt!=(fileWithoutExtCheck))) {
                         lst.add f.getAbsolutePath() //+ ".dll"
                     }
                 }
@@ -96,7 +97,7 @@ class NugetMonkey extends Ikvm {
 //                  lst.add "${home}\\bin\\IKVM.OpenJDK.Beans.dll "
                 def params = lst as String[]
 
-                buildOne(workingDep.getAbsolutePath(),fileWithoutExt,lst)
+                buildOne(workingDep.getAbsolutePath(),fileWithoutExt,params)
 
             }
             addToJson(dep)
