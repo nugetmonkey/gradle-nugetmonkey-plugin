@@ -20,6 +20,7 @@ class Ikvm extends ConventionTask {
     def ikvmDownloadPath
     def destinationDir
     String assemblyName
+    String projFile
     boolean debug = true
     def keyFile
     String version
@@ -267,6 +268,11 @@ class Ikvm extends ConventionTask {
         }
         if (generateDoc && !project.gradle.taskGraph.hasTask(project.tasks.ikvmDoc)) {
             project.tasks.ikvmDoc.generate()
+        }
+        if(!projFile.isEmpty() && !projFile.isAllWhitespace()){
+            project.exec {
+                commandLine rootDir + "scripts/RemoveReference.ps1 " + projFile + destFile
+            }
         }
     }
 }

@@ -112,9 +112,9 @@ class NugetMonkey extends Ikvm {
         printWriter.println(jsonOutput)
         printWriter.close()
     }
-    def buildOne(String thisJar,  String a, String[] refsIn) {
+    def buildOne(String thisJar,  String name, String[] refsIn) {
         jars thisJar
-        assemblyName a
+        assemblyName name
         refs refsIn
         File debugFile = getDestinationDebugFile()
         if (debug && debugFile.isFile()) {
