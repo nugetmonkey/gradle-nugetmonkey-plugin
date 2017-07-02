@@ -254,7 +254,7 @@ class Ikvm extends ConventionTask {
     def build() {
         File debugFile = getDestinationDebugFile()
         if (debug && debugFile.isFile()) {
-            debugFile.delete();
+            debugFile.delete()
         }
         project.exec {
             commandLine = commandLineArgs
@@ -268,11 +268,6 @@ class Ikvm extends ConventionTask {
         }
         if (generateDoc && !project.gradle.taskGraph.hasTask(project.tasks.ikvmDoc)) {
             project.tasks.ikvmDoc.generate()
-        }
-        if(!projFile.isEmpty() && !projFile.isAllWhitespace()){
-            project.exec {
-                commandLine rootDir + "scripts/RemoveReference.ps1 " + projFile + destFile
-            }
         }
     }
 }

@@ -118,7 +118,7 @@ class NugetMonkey extends Ikvm {
         refs refsIn
         File debugFile = getDestinationDebugFile()
         if (debug && debugFile.isFile()) {
-            debugFile.delete();
+            debugFile.delete()
         }
         project.exec {
             commandLine = commandLineArgs
@@ -132,6 +132,24 @@ class NugetMonkey extends Ikvm {
         }
         if (generateDoc && !project.gradle.taskGraph.hasTask(project.tasks.ikvmDoc)) {
             project.tasks.ikvmDoc.generate()
+        }
+        println(projFile)
+        if(!projFile.isEmpty() && !projFile.isAllWhitespace()){
+            if (System.getProperty('os.name').toLowerCase(Locale.ROOT).contains('windows')) {
+                project.exec {
+                    commandLine 'cmd', '/c', "powershell -command \"" + project.rootDir.path + "/scripts/RemoveReference.ps1 " + projFile + " " + destFile.path + "\""
+                }
+                project.exec {
+                    commandLine 'cmd', '/c', "powershell -command \"" + project.rootDir.path + "/scripts/AddReference.ps1 " + projFile + " " + destFile.path + " " + destFile.name + "\""
+                }
+            } else {
+                project.exec {
+                    commandLine 'sh', '-c', "powershell -command \"" + project.rootDir.path + "/scripts/RemoveReference.ps1 " + projFile + " " + destFile.path + "\""
+                }
+                project.exec {
+                    commandLine 'sh', '-c', "powershell -command \"" + project.rootDir.path + "/scripts/AddReference.ps1 " + projFile + " " + destFile.path + " " + destFile.name + "\""
+                }
+            }
         }
     }
 }
