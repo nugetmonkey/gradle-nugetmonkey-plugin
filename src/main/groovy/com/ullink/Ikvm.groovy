@@ -1,10 +1,10 @@
 package com.ullink
 
 import org.apache.commons.codec.digest.DigestUtils
-import org.apache.commons.io.FileUtils;
+import org.apache.commons.io.FileUtils
 import org.apache.commons.lang3.StringUtils
 import org.gradle.api.Task
-import org.gradle.api.artifacts.Configuration;
+import org.gradle.api.artifacts.Configuration
 import org.gradle.api.internal.ConventionTask
 import org.gradle.api.tasks.InputFile
 import org.gradle.api.tasks.InputFiles
@@ -68,16 +68,16 @@ class Ikvm extends ConventionTask {
             }
         }
         
-        Configuration compileConfiguration = (Configuration)project.configurations.findByName(getCompileConfigurationName());
+        Configuration compileConfiguration = (Configuration)project.configurations.findByName(getCompileConfigurationName())
         if (compileConfiguration == null) {
-            compileConfiguration = project.configurations.maybeCreate(getCompileConfigurationName());
+            compileConfiguration = project.configurations.maybeCreate(getCompileConfigurationName())
         }
         compileConfiguration.transitive = true
         compileConfiguration.description = this.name + ' compile classpath'
     }
     
     String getCompileConfigurationName() {
-        return StringUtils.uncapitalize(String.format("%sCompile", this.name ));
+        return StringUtils.uncapitalize(String.format("%sCompile", this.name ))
     }
     
     def getIkvmc(){
@@ -120,7 +120,7 @@ class Ikvm extends ConventionTask {
             assert sub, "${IKVM_EXE} not found in downloaded archive"
             return sub
         }
-        return project.file(home);
+        return project.file(home)
     }
 
     def ikvmcOptionalOnMono(){
@@ -162,15 +162,15 @@ class Ikvm extends ConventionTask {
             {
                 case "library":
                     extension = ".dll"
-                    break;
+                    break
                 case "module":
                     extension = ".netmodule"
-                    break;
+                    break
                 case "exe":
                 case "winexe":
                 default:
                     extension = ".exe"
-                    break;
+                    break
             }
         }
         new File(getDestDir(), getAssemblyName() + extension)
@@ -247,7 +247,7 @@ class Ikvm extends ConventionTask {
         commandLineArgs += getReferences().collect{"-reference:${it}"}
         commandLineArgs += getRefs().collect{"-reference:${it}"}
 
-        return commandLineArgs;
+        return commandLineArgs
     }
 
     @TaskAction

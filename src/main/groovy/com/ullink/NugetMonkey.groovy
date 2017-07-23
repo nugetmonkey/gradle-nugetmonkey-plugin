@@ -15,6 +15,20 @@ import org.gradle.internal.os.OperatingSystem
 class NugetMonkey extends Ikvm {
     NugetMonkey() {
         super()
+        /*File debugFile = getDestinationDebugFile()
+        outputs.upToDateWhen {
+            if (debug) {
+                if (debugFile.isFile()
+                        && debugFile.exists()) {
+                    return true
+                }
+            }
+            if (destFile.isFile()
+                    && destFile.exists()) {
+                return destFile.exists()
+            }
+            return false;
+        }*/
     }
 
     @TaskAction
@@ -35,16 +49,13 @@ class NugetMonkey extends Ikvm {
                 if (resolvedDep.children.size() > 0) {
                     resolvedDep.children.each {
                         childResolvedDep ->
-//                              println(childResolvedDep.module.id.name)
-//                          if (resolvedDep in childResolvedDep.getParents()
-//                                  && childResolvedDep.getConfiguration() == 'compile') {
                             addToJson(childResolvedDep)
 
-                            def fl = childResolvedDep.getModuleArtifacts()[0].file;
+                            def fl = childResolvedDep.getModuleArtifacts()[0].file
                             def cd = fl.getName()
                             String cdWe = cd.take(cd.lastIndexOf('.'))
 
-                            String dll = destinationDir.getAbsolutePath()  + "/" + cdWe  + ".dll"
+                            String dll = destinationDir.getAbsolutePath() + "/" + cdWe + ".dll"
                             depMap.dll = dll
                     }
                     if (jsonOutput[-1] == ',') {
@@ -53,36 +64,22 @@ class NugetMonkey extends Ikvm {
                 }
                 jsonOutput += "]},"
 
-                def workingDep = resolvedDep.getModuleArtifacts()[0].file;
+                def workingDep = resolvedDep.getModuleArtifacts()[0].file
                 def curDep = workingDep.getName()
                 String fileWithoutExt = curDep.take(curDep.lastIndexOf('.'))
 
                 List<String> lst = new LinkedList<>()
-//                lst.add "${rootProject.ext.ikvmpath}\\bin\\ikvmc.exe"
-//                lst.add "\"${workingDep.getAbsolutePath()}\""
-//                lst.add "-target:library"
-//                lst.add "-debug"
-//                  lst.add "-nojni"
                 depMap.values().each { e ->
                     lst.add e
                 }
 
-//                  new FileNameFinder().getFileNames('${rootProject.ext.ikvmpath}\\bin\\',  '*.dll') .each { String fn ->
-//                      File f = new File(fn);
-//                      if (!f.getName().toLowerCase().contains("native")) {
-//                          lst.add "-r:" + f.getAbsoluteFile() //+ ".dll"
-//                      }
-//                  }
-//                  println fileWithoutExt
-
-                new FileNameFinder().getFileNames(destinationDir.getAbsolutePath()  ,  '*.dll') .each { String fn ->
-                    File f = new File(fn);
-                    def checkDep = f.getName();
-                    String fileWithoutExtCheck = checkDep.take(checkDep.lastIndexOf('.'));
-//                      println fileWithoutExtCheck
+                new FileNameFinder().getFileNames(destinationDir.getAbsolutePath(), '*.dll').each { String fn ->
+                    File f = new File(fn)
+                    def checkDep = f.getName()
+                    String fileWithoutExtCheck = checkDep.take(checkDep.lastIndexOf('.'))
                     if (!f.getName().toLowerCase().contains("native")
                             && f.getAbsolutePath().toLowerCase().endsWith(".dll")
-                            && (fileWithoutExt!=(fileWithoutExtCheck))) {
+                            && (fileWithoutExt != (fileWithoutExtCheck))) {
                         lst.add f.getAbsolutePath() //+ ".dll"
                     }
                 }
@@ -94,11 +91,9 @@ class NugetMonkey extends Ikvm {
                 lst.add "${home}\\bin\\IKVM.Reflection.dll"
                 lst.add "${home}\\bin\\IKVM.Runtime.JNI.dll"
                 lst.add "${home}\\bin\\IKVM.Runtime.dll"
-//                  lst.add "${home}\\bin\\IKVM.OpenJDK.Beans.dll "
                 def params = lst as String[]
 
-                buildOne(workingDep.getAbsolutePath(),fileWithoutExt,params)
-
+                buildOne(workingDep.getAbsolutePath(), fileWithoutExt, params)
             }
             addToJson(dep)
         }
@@ -106,48 +101,62 @@ class NugetMonkey extends Ikvm {
             jsonOutput = jsonOutput[0..-2]
         }
         jsonOutput += "]"
-//          println jsonOutput
         def myFile = new File("deps.json")
         PrintWriter printWriter = new PrintWriter(myFile)
         printWriter.println(jsonOutput)
         printWriter.close()
     }
-    def buildOne(String thisJar,  String name, String[] refsIn) {
+
+    def buildOne(String thisJar, String name, String[] refsIn) {
         jars thisJar
         assemblyName name
         refs refsIn
+        boolean upToDate = true
         File debugFile = getDestinationDebugFile()
-        if (debug && debugFile.isFile()) {
-            debugFile.delete()
-        }
-        project.exec {
-            commandLine = commandLineArgs
-        }
-        if (debug && !debugFile.isFile()) {
-            // bug in IKVM 0.40
-            File shitFile = new File(getAssemblyName() + ".pdb")
-            if (shitFile.isFile()) {
-                FileUtils.moveFile(shitFile, debugFile)
+        if (debug) {
+            if (!debugFile.isFile()
+                    || !debugFile.exists()) {
+                upToDate = false
             }
         }
-        if (generateDoc && !project.gradle.taskGraph.hasTask(project.tasks.ikvmDoc)) {
-            project.tasks.ikvmDoc.generate()
+        if (!destFile.isFile()
+                || !destFile.exists()) {
+            upToDate = false
         }
-        println(projFile)
-        if(!projFile.isEmpty() && !projFile.isAllWhitespace()){
-            if (System.getProperty('os.name').toLowerCase(Locale.ROOT).contains('windows')) {
-                project.exec {
-                    commandLine 'cmd', '/c', "powershell -command \"" + project.rootDir.path + "/scripts/RemoveReference.ps1 " + projFile + " " + destFile.path + "\""
+        if(!upToDate) {
+            if (debug && debugFile.isFile()) {
+                debugFile.delete()
+            }
+
+            project.exec {
+                commandLine = commandLineArgs
+            }
+            if (debug && !debugFile.isFile()) {
+                // bug in IKVM 0.40
+                File shitFile = new File(getAssemblyName() + ".pdb")
+                if (shitFile.isFile()) {
+                    FileUtils.moveFile(shitFile, debugFile)
                 }
-                project.exec {
-                    commandLine 'cmd', '/c', "powershell -command \"" + project.rootDir.path + "/scripts/AddReference.ps1 " + projFile + " " + destFile.path + " " + destFile.name + "\""
-                }
-            } else {
-                project.exec {
-                    commandLine 'sh', '-c', "powershell -command \"" + project.rootDir.path + "/scripts/RemoveReference.ps1 " + projFile + " " + destFile.path + "\""
-                }
-                project.exec {
-                    commandLine 'sh', '-c', "powershell -command \"" + project.rootDir.path + "/scripts/AddReference.ps1 " + projFile + " " + destFile.path + " " + destFile.name + "\""
+            }
+            if (generateDoc && !project.gradle.taskGraph.hasTask(project.tasks.ikvmDoc)) {
+                project.tasks.ikvmDoc.generate()
+            }
+            // println(projFile)
+            if (!projFile.isEmpty() && !projFile.isAllWhitespace()) {
+                if (System.getProperty('os.name').toLowerCase(Locale.ROOT).contains('windows')) {
+                    project.exec {
+                        commandLine 'cmd', '/c', "powershell -command \"" + project.rootDir.path + "/scripts/RemoveReference.ps1 " + projFile + " " + destFile.path + "\""
+                    }
+                    project.exec {
+                        commandLine 'cmd', '/c', "powershell -command \"" + project.rootDir.path + "/scripts/AddReference.ps1 " + projFile + " " + destFile.path + " " + destFile.name + "\""
+                    }
+                } else {
+                    project.exec {
+                        commandLine 'sh', '-c', "powershell -command \"" + project.rootDir.path + "/scripts/RemoveReference.ps1 " + projFile + " " + destFile.path + "\""
+                    }
+                    project.exec {
+                        commandLine 'sh', '-c', "powershell -command \"" + project.rootDir.path + "/scripts/AddReference.ps1 " + projFile + " " + destFile.path + " " + destFile.name + "\""
+                    }
                 }
             }
         }
