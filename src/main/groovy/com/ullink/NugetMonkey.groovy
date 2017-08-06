@@ -1,16 +1,8 @@
 package com.ullink
 
-import org.apache.commons.codec.digest.DigestUtils
 import org.apache.commons.io.FileUtils
-import org.apache.commons.lang3.StringUtils
-import org.gradle.api.Task
-import org.gradle.api.artifacts.Configuration
-import org.gradle.api.internal.ConventionTask
-import org.gradle.api.tasks.InputFiles
-import org.gradle.api.tasks.OutputFile
+import org.codehaus.jackson.map.ObjectMapper
 import org.gradle.api.tasks.TaskAction
-import org.gradle.api.tasks.bundling.Jar
-import org.gradle.internal.os.OperatingSystem
 
 class NugetMonkey extends Ikvm {
     NugetMonkey() {
@@ -33,7 +25,19 @@ class NugetMonkey extends Ikvm {
 
     @TaskAction
     def build() {
+        ObjectMapper mapper = new ObjectMapper();
 
+        File additionalDeps = new File("./AdditionalJavaDependencies.json")
+        if(additionalDeps.exists()) {
+            GradleObjectModelModifications additionalModel = mapper.readValue(additionalDeps, GradleObjectModelModifications.class)
+            if (additionalModel != null) {
+                additionalModel.getAdditionalProjectDependencies().each { ad ->
+                    project.dependencies {
+                        "compile"  "$ad"
+                    }
+                }
+            }
+        }
         def jsonOutput = "["
         project.configurations.compile.resolvedConfiguration.firstLevelModuleDependencies.each { dep ->
             def addToJson
