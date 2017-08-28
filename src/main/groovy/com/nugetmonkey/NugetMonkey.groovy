@@ -41,6 +41,19 @@ class NugetMonkey extends Ikvm {
                 }
             }
         }
+        List<String> lstIKVM = new LinkedList<>();
+        lstIKVM.add "${home}\\bin\\ICSharpCode.SharpZipLib.dll"
+        lstIKVM.add "${home}\\bin\\IKVM.AWT.WinForms.dll"
+        lstIKVM.add "${home}\\bin\\IKVM.OpenJDK.Core.dll"
+        lstIKVM.add "${home}\\bin\\IKVM.OpenJDK.Tools.dll"
+        lstIKVM.add "${home}\\bin\\IKVM.Reflection.dll"
+        lstIKVM.add "${home}\\bin\\IKVM.Runtime.JNI.dll"
+        lstIKVM.add "${home}\\bin\\IKVM.Runtime.dll"
+
+        lstIKVM.each {
+            addOneReference(projFile, new File(it))
+        }
+
         def jsonOutput = "["
         project.configurations.compile.resolvedConfiguration.firstLevelModuleDependencies.each { dep ->
             def addToJson
@@ -91,13 +104,7 @@ class NugetMonkey extends Ikvm {
                     }
                 }
                 def home = resolveIkvmHome().getAbsolutePath()
-                lst.add "${home}\\bin\\ICSharpCode.SharpZipLib.dll"
-                lst.add "${home}\\bin\\IKVM.AWT.WinForms.dll"
-                lst.add "${home}\\bin\\IKVM.OpenJDK.Core.dll"
-                lst.add "${home}\\bin\\IKVM.OpenJDK.Tools.dll"
-                lst.add "${home}\\bin\\IKVM.Reflection.dll"
-                lst.add "${home}\\bin\\IKVM.Runtime.JNI.dll"
-                lst.add "${home}\\bin\\IKVM.Runtime.dll"
+                lst.addAll(lstIKVM)
                 def params = lst as String[]
 
                 buildOne(workingDep.getAbsolutePath(), fileWithoutExt, params)
@@ -116,8 +123,7 @@ class NugetMonkey extends Ikvm {
             pr.close()
         }
     }
-
-    def addOneReference() {
+    def addOneReference(String projFile, File destFile) {
         // println(projFile)
         if (!projFile.isEmpty() && !projFile.isAllWhitespace()) {
             if (System.getProperty('os.name').toLowerCase(Locale.ROOT).contains('windows')) {
@@ -136,6 +142,9 @@ class NugetMonkey extends Ikvm {
                 }
             }
         }
+    }
+    def addOneReference() {
+        addOneReference(  projFile,   destFile)
     }
 
     def buildOne(String thisJar, String name, String[] refsIn) {
