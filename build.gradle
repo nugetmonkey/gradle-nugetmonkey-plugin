@@ -7,7 +7,7 @@ plugins {
 
 apply plugin: 'groovy'
 
-group = 'com.ullink.gradle'
+group = 'com.nugetmonkey.gradle'
 description 'gradle-nugetmonkey-plugin is a Gradle plugin for IKVM artifact compilation'
 
 sourceCompatibility = 1.8
@@ -29,20 +29,20 @@ bintray {
     key project.properties.bintrayApiKey
     pkg.repo = 'gradle-plugins'
     pkg.version.gpg.sign = true
-    pkg.userOrg = 'ullink'
+    pkg.userOrg = 'nugetmonkey'
 }
 
 plugindev {
-    pluginId 'com.ullink.nugetmonkey'
-    pluginName 'com.ullink.gradle:gradle-nugetmonkey-plugin'
-    pluginImplementationClass 'com.ullink.NugetMonkey'
+    pluginId 'com.nugetmonkey.nugetmonkey'
+    pluginName 'com.nugetmonkey.gradle:gradle-nugetmonkey-plugin'
+    pluginImplementationClass 'com.nugetmonkey.NugetMonkey'
     pluginDescription project.description
     pluginLicenses 'Apache-2.0'
     pluginTags 'gradle', 'ikvm', 'java', 'nuget'
-    authorId 'gluck'
+    authorId 'mfyuce'
     authorName 'Francois Valdy'
-    authorEmail 'francois.valdy@gmail.com'
-    projectUrl "https://github.com/Ullink/${project.name}"
+    authorEmail 'mfyuce@gmail.com'
+    projectUrl "https://github.com/nugetmonkey/${project.name}"
     projectInceptionYear '2012'
     done()
 }
