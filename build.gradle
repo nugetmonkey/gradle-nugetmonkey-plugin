@@ -23,6 +23,7 @@ dependencies {
     compile group: 'org.codehaus.jackson', name: 'jackson-mapper-asl', version: '1.9.13'
 }
 
+
 bintray {
     // to remove when upgraded plugindev to 1.0.4
     user project.properties.bintrayUser

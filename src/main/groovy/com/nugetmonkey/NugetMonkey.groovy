@@ -109,9 +109,11 @@ class NugetMonkey extends Ikvm {
         }
         jsonOutput += "]"
         def myFile = new File("deps.json")
-        new PrintWriter(myFile).withClosable {
-            it.println(jsonOutput)
-            it.close()
+        PrintWriter pr = new PrintWriter(myFile)
+        try{
+            pr.println(jsonOutput)
+        }finally {
+            pr.close()
         }
     }
 

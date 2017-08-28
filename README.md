@@ -28,7 +28,7 @@ Build script snippet can be used in all Gradle versions:
         }
 
         dependencies {
-            classpath "com.ullink.gradle:gradle-nuget@-plugin:2.3"
+            classpath "com.nugetmonkey.gradle:gradle-nuget@-plugin:2.3"
         }
     }
 
@@ -42,7 +42,7 @@ Build script snippet can be used in all Gradle versions:
 Build script snippet can be used instead with Gradle 2.1+
 
     plugins {
-      id "com.ullink.ikvm" version "2.3"
+      id "com.nugetmonkey.nugetmonkey" version "2.3"
     }
 
 More options:
