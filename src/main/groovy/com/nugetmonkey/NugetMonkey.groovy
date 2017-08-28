@@ -42,6 +42,7 @@ class NugetMonkey extends Ikvm {
             }
         }
         List<String> lstIKVM = new LinkedList<>();
+        def home = resolveIkvmHome().getAbsolutePath()
         lstIKVM.add "${home}\\bin\\ICSharpCode.SharpZipLib.dll"
         lstIKVM.add "${home}\\bin\\IKVM.AWT.WinForms.dll"
         lstIKVM.add "${home}\\bin\\IKVM.OpenJDK.Core.dll"
@@ -103,7 +104,6 @@ class NugetMonkey extends Ikvm {
                         lst.add f.getAbsolutePath() //+ ".dll"
                     }
                 }
-                def home = resolveIkvmHome().getAbsolutePath()
                 lst.addAll(lstIKVM)
                 def params = lst as String[]
 
