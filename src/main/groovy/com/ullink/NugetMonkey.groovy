@@ -27,13 +27,14 @@ class NugetMonkey extends Ikvm {
     def build() {
         ObjectMapper mapper = new ObjectMapper();
 
+        // Add dependencies provided through additional dependencies json file.
         File additionalDeps = new File("./AdditionalJavaDependencies.json")
-        if(additionalDeps.exists()) {
+        if (additionalDeps.exists()) {
             GradleObjectModelModifications additionalModel = mapper.readValue(additionalDeps, GradleObjectModelModifications.class)
             if (additionalModel != null) {
                 additionalModel.getAdditionalProjectDependencies().each { ad ->
                     project.dependencies {
-                        "compile"  "$ad"
+                        "compile" "$ad"
                     }
                 }
             }
@@ -106,9 +107,31 @@ class NugetMonkey extends Ikvm {
         }
         jsonOutput += "]"
         def myFile = new File("deps.json")
-        PrintWriter printWriter = new PrintWriter(myFile)
-        printWriter.println(jsonOutput)
-        printWriter.close()
+        new PrintWriter(myFile).withClosable {
+            it.println(jsonOutput)
+            it.close()
+        }
+    }
+
+    def addOneReference() {
+        // println(projFile)
+        if (!projFile.isEmpty() && !projFile.isAllWhitespace()) {
+            if (System.getProperty('os.name').toLowerCase(Locale.ROOT).contains('windows')) {
+                /*project.exec {
+                    commandLine 'cmd', '/c', "powershell -command \"" + project.rootDir.path + "/scripts/RemoveReference.ps1 " + projFile + " " + destFile.path + "\""
+                }*/
+                project.exec {
+                    commandLine 'cmd', '/c', "powershell -command \"" + project.rootDir.path + "/scripts/AddReference.ps1 " + projFile + " " + destFile.path + " " + destFile.name + "\""
+                }
+            } else {
+/*project.exec {
+    commandLine 'sh', '-c', "powershell -command \"" + project.rootDir.path + "/scripts/RemoveReference.ps1 " + projFile + " " + destFile.path + "\""
+}*/
+                project.exec {
+                    commandLine 'sh', '-c', "powershell -command \"" + project.rootDir.path + "/scripts/AddReference.ps1 " + projFile + " " + destFile.path + " " + destFile.name + "\""
+                }
+            }
+        }
     }
 
     def buildOne(String thisJar, String name, String[] refsIn) {
@@ -127,7 +150,7 @@ class NugetMonkey extends Ikvm {
                 || !destFile.exists()) {
             upToDate = false
         }
-        if(!upToDate) {
+        if (!upToDate) {
             if (debug && debugFile.isFile()) {
                 debugFile.delete()
             }
@@ -136,7 +159,7 @@ class NugetMonkey extends Ikvm {
                 commandLine = commandLineArgs
             }
             if (debug && !debugFile.isFile()) {
-                // bug in IKVM 0.40
+// bug in IKVM 0.40
                 File shitFile = new File(getAssemblyName() + ".pdb")
                 if (shitFile.isFile()) {
                     FileUtils.moveFile(shitFile, debugFile)
@@ -145,24 +168,7 @@ class NugetMonkey extends Ikvm {
             if (generateDoc && !project.gradle.taskGraph.hasTask(project.tasks.ikvmDoc)) {
                 project.tasks.ikvmDoc.generate()
             }
-            // println(projFile)
-            if (!projFile.isEmpty() && !projFile.isAllWhitespace()) {
-                if (System.getProperty('os.name').toLowerCase(Locale.ROOT).contains('windows')) {
-                    project.exec {
-                        commandLine 'cmd', '/c', "powershell -command \"" + project.rootDir.path + "/scripts/RemoveReference.ps1 " + projFile + " " + destFile.path + "\""
-                    }
-                    project.exec {
-                        commandLine 'cmd', '/c', "powershell -command \"" + project.rootDir.path + "/scripts/AddReference.ps1 " + projFile + " " + destFile.path + " " + destFile.name + "\""
-                    }
-                } else {
-                    project.exec {
-                        commandLine 'sh', '-c', "powershell -command \"" + project.rootDir.path + "/scripts/RemoveReference.ps1 " + projFile + " " + destFile.path + "\""
-                    }
-                    project.exec {
-                        commandLine 'sh', '-c', "powershell -command \"" + project.rootDir.path + "/scripts/AddReference.ps1 " + projFile + " " + destFile.path + " " + destFile.name + "\""
-                    }
-                }
-            }
         }
+        addOneReference()
     }
 }

@@ -180,7 +180,7 @@ class Ikvm extends ConventionTask {
         def commandLineArgs = ikvmcOptionalOnMono()
 
         def destFile = getDestFile()
-        commandLineArgs += "-out:${destFile}"
+        commandLineArgs += "-out:\"${destFile}\""
 
         def version = getVersion().replaceAll("[^0-9.]+", "")
         if(version) {
@@ -191,7 +191,7 @@ class Ikvm extends ConventionTask {
         }
         def keyFile = getKeyFileObj()
         if (keyFile) {
-            commandLineArgs += "-keyfile:${keyFile}"
+            commandLineArgs += "-keyfile:\"${keyFile}\""
         }
         if (debug) {
             commandLineArgs += "-debug"
@@ -204,7 +204,7 @@ class Ikvm extends ConventionTask {
         }
         if (srcPath) {
             def srcPath = project.file(srcPath)
-            commandLineArgs += "-srcpath:${srcPath}"
+            commandLineArgs += "-srcpath:\"${srcPath}\""
         }
         if (classloader) {
             def classloader = classloader
@@ -214,7 +214,7 @@ class Ikvm extends ConventionTask {
             commandLineArgs += "-classloader:${classloader}"
         }
         if (target) {
-            commandLineArgs += "-target:${target}"
+            commandLineArgs += "-target:\"${target}\""
         }
         if (platform) {
             commandLineArgs += "-platform:${platform}"
@@ -244,8 +244,8 @@ class Ikvm extends ConventionTask {
         }
 
         commandLineArgs += getJars()
-        commandLineArgs += getReferences().collect{"-reference:${it}"}
-        commandLineArgs += getRefs().collect{"-reference:${it}"}
+        commandLineArgs += getReferences().collect{"-reference:\"${it}\""}
+        commandLineArgs += getRefs().collect{"-reference:\"${it}\""}
 
         return commandLineArgs
     }
