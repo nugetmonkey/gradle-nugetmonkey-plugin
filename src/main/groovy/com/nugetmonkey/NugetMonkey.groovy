@@ -33,8 +33,10 @@ class NugetMonkey extends Ikvm {
             GradleObjectModelModifications additionalModel = mapper.readValue(additionalDeps, GradleObjectModelModifications.class)
             if (additionalModel != null) {
                 additionalModel.getAdditionalProjectDependencies().each { ad ->
-                    project.dependencies {
-                        "compile" "$ad"
+                    project.afterEvaluate {
+                        project.dependencies {
+                            "compile" "$ad"
+                        }
                     }
                 }
             }
