@@ -1,4 +1,4 @@
-package com.ullink
+package com.nugetmonkey
 
 import org.gradle.api.tasks.bundling.Jar
 import org.junit.Before

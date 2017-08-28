@@ -1,4 +1,4 @@
-package com.ullink
+package com.nugetmonkey
 
 import static org.junit.Assert.*
 import org.junit.Test

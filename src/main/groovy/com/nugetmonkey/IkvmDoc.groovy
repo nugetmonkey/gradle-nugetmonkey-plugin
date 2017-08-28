@@ -1,4 +1,4 @@
-package com.ullink
+package com.nugetmonkey
 
 import org.gradle.api.internal.AbstractTask
 import org.gradle.api.tasks.InputFile
