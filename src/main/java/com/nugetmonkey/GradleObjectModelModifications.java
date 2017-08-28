@@ -1,4 +1,4 @@
-package com.ullink;
+package com.nugetmonkey;
 
 public class GradleObjectModelModifications {
         private String[] additionalProjectDependencies;

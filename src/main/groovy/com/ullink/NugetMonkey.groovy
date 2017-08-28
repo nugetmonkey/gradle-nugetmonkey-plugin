@@ -1,5 +1,6 @@
-package com.ullink
+package com.nugetmonkey
 
+import com.ullink.Ikvm
 import org.apache.commons.io.FileUtils
 import org.codehaus.jackson.map.ObjectMapper
 import org.gradle.api.tasks.TaskAction
