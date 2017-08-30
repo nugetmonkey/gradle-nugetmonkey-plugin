@@ -7,8 +7,9 @@ import org.gradle.api.tasks.TaskAction
 import java.util.regex.Pattern
 
 class NugetMonkey extends Ikvm {
-    private static final String TEX_IKVMHome = "\\\$\\(IKVMHome\\)";
+    private static final String TEX_IKVMHome = "\\\$\\(IKVMHome\\)"
     private static final String TEX_ProjectHome = "\\\$\\(ProjectHome\\)"
+    private static final String TEX_BackTick = "`"
     NugetMonkey() {
         super()
         /*File debugFile = getDestinationDebugFile()
@@ -178,14 +179,13 @@ class NugetMonkey extends Ikvm {
     }
     def replaceFolders(String path){
         return path
-                .replaceAll(Pattern.quote(resolveIkvmHome().getAbsolutePath()), TEX_IKVMHome)
-                .replace(Pattern.quote(project.rootDir.path), TEX_ProjectHome)
+                .replaceAll(Pattern.quote(resolveIkvmHome().getAbsolutePath()), TEX_BackTick + TEX_IKVMHome)
+                .replaceAll(Pattern.quote(project.rootDir.path),TEX_BackTick + TEX_ProjectHome)
     }
     def addOneReference(String projFile, File destFile) {
         // println(projFile)
         if (!projFile.isEmpty() && !projFile.isAllWhitespace()) {
             String refPath = replaceFolders(destFile.path)
-            String projectRootReplaced = replaceFolders(project.rootDir.path)
             String projectRoot = project.rootDir.path
             println(refPath)
             if (System.getProperty('os.name').toLowerCase(Locale.ROOT).contains('windows')) {
