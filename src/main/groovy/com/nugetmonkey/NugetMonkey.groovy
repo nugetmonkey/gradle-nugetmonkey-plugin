@@ -175,25 +175,26 @@ class NugetMonkey extends Ikvm {
         writeTofile "deps.json",jsonOutput
     }
     def replaceFolders(String path){
-        return path.replace( resolveIkvmHome().getAbsolutePath(), TEX_IKVMHome).replace(project.rootDir,TEX_ProjectHome)
+        return path.replace( resolveIkvmHome().getAbsolutePath(), TEX_IKVMHome).replace(project.rootDir.path,TEX_ProjectHome)
     }
     def addOneReference(String projFile, File destFile) {
         // println(projFile)
         if (!projFile.isEmpty() && !projFile.isAllWhitespace()) {
             String refPath = replaceFolders(destFile.path)
+            String projectRoot = replaceFolders(project.rootDir.path)
             if (System.getProperty('os.name').toLowerCase(Locale.ROOT).contains('windows')) {
                 /*project.exec {
-                    commandLine 'cmd', '/c', "powershell -command \"" + project.rootDir.path + "/scripts/RemoveReference.ps1 " + projFile + " " + refPath + "\""
+                    commandLine 'cmd', '/c', "powershell -command \"" + projectRoot + "/scripts/RemoveReference.ps1 " + projFile + " " + refPath + "\""
                 }*/
                 project.exec {
-                    commandLine 'cmd', '/c', "powershell -command \"" + project.rootDir.path + "/scripts/AddReference.ps1 " + projFile + " " + refPath + " " + destFile.name + "\""
+                    commandLine 'cmd', '/c', "powershell -command \"" + projectRoot + "/scripts/AddReference.ps1 " + projFile + " " + refPath + " " + destFile.name + "\""
                 }
             } else {
 /*project.exec {
-    commandLine 'sh', '-c', "powershell -command \"" + project.rootDir.path + "/scripts/RemoveReference.ps1 " + projFile + " " + refPath + "\""
+    commandLine 'sh', '-c', "powershell -command \"" + projectRoot + "/scripts/RemoveReference.ps1 " + projFile + " " + refPath + "\""
 }*/
                 project.exec {
-                    commandLine 'sh', '-c', "powershell -command \"" + project.rootDir.path + "/scripts/AddReference.ps1 " + projFile + " " + refPath + " " + destFile.name + "\""
+                    commandLine 'sh', '-c', "powershell -command \"" + projectRoot + "/scripts/AddReference.ps1 " + projFile + " " + refPath + " " + destFile.name + "\""
                 }
             }
         }
