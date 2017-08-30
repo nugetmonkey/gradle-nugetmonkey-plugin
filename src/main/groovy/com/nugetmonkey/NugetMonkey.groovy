@@ -5,6 +5,8 @@ import org.codehaus.jackson.map.ObjectMapper
 import org.gradle.api.tasks.TaskAction
 
 class NugetMonkey extends Ikvm {
+    private static String TEX_IKVMHome = "\$(IKVMHome)"
+    private static String TEX_ProjectHome = "\$(ProjectHome)"
     NugetMonkey() {
         super()
         /*File debugFile = getDestinationDebugFile()
@@ -37,6 +39,7 @@ class NugetMonkey extends Ikvm {
         ObjectMapper mapper = new ObjectMapper();
 
         // Add dependencies provided through additional dependencies json file.
+
         File additionalDeps = new File("./AdditionalJavaDependencies.json")
         if (additionalDeps.exists()) {
             GradleObjectModelModifications additionalModel = mapper.readValue(additionalDeps, GradleObjectModelModifications.class)
@@ -53,7 +56,7 @@ class NugetMonkey extends Ikvm {
 
         def home = resolveIkvmHome().getAbsolutePath()
 
-        List<String> lstIKVMIKVMc = new LinkedList<>();
+        List<String> lstIKVMIKVMc = new LinkedList<>()
         lstIKVMIKVMc.add "${home}\\bin\\ICSharpCode.SharpZipLib.dll"
         lstIKVMIKVMc.add "${home}\\bin\\IKVM.AWT.WinForms.dll"
         lstIKVMIKVMc.add "${home}\\bin\\IKVM.OpenJDK.Core.dll"
@@ -101,7 +104,7 @@ class NugetMonkey extends Ikvm {
         String projectVariables = "<Project xmlns=\"http://schemas.microsoft.com/developer/msbuild/2003\">\n" +
                 "  <PropertyGroup>\n" +
                 "    <IKVMHome>${home}</IKVMHome>\n" +
-                "    <ProjectHome>${new File(".").getAbsolutePath()}</ProjectHome>\n" +
+                "    <ProjectHome>${project.rootDir}</ProjectHome>\n" +
                 "  </PropertyGroup>\n" +
                 "</Project>"
         writeTofile "ProjectVariables.txt",projectVariables
@@ -170,24 +173,27 @@ class NugetMonkey extends Ikvm {
         jsonOutput += "]"
 
         writeTofile "deps.json",jsonOutput
-
+    }
+    def replaceFolders(String path){
+        return path.replace( resolveIkvmHome().getAbsolutePath(), TEX_IKVMHome).replace(project.rootDir,TEX_ProjectHome)
     }
     def addOneReference(String projFile, File destFile) {
         // println(projFile)
         if (!projFile.isEmpty() && !projFile.isAllWhitespace()) {
+            String refPath = replaceFolders(destFile.path)
             if (System.getProperty('os.name').toLowerCase(Locale.ROOT).contains('windows')) {
                 /*project.exec {
-                    commandLine 'cmd', '/c', "powershell -command \"" + project.rootDir.path + "/scripts/RemoveReference.ps1 " + projFile + " " + destFile.path + "\""
+                    commandLine 'cmd', '/c', "powershell -command \"" + project.rootDir.path + "/scripts/RemoveReference.ps1 " + projFile + " " + refPath + "\""
                 }*/
                 project.exec {
-                    commandLine 'cmd', '/c', "powershell -command \"" + project.rootDir.path + "/scripts/AddReference.ps1 " + projFile + " " + destFile.path + " " + destFile.name + "\""
+                    commandLine 'cmd', '/c', "powershell -command \"" + project.rootDir.path + "/scripts/AddReference.ps1 " + projFile + " " + refPath + " " + destFile.name + "\""
                 }
             } else {
 /*project.exec {
-    commandLine 'sh', '-c', "powershell -command \"" + project.rootDir.path + "/scripts/RemoveReference.ps1 " + projFile + " " + destFile.path + "\""
+    commandLine 'sh', '-c', "powershell -command \"" + project.rootDir.path + "/scripts/RemoveReference.ps1 " + projFile + " " + refPath + "\""
 }*/
                 project.exec {
-                    commandLine 'sh', '-c', "powershell -command \"" + project.rootDir.path + "/scripts/AddReference.ps1 " + projFile + " " + destFile.path + " " + destFile.name + "\""
+                    commandLine 'sh', '-c', "powershell -command \"" + project.rootDir.path + "/scripts/AddReference.ps1 " + projFile + " " + refPath + " " + destFile.name + "\""
                 }
             }
         }
