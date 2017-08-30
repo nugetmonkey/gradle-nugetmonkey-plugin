@@ -23,6 +23,15 @@ class NugetMonkey extends Ikvm {
         }*/
     }
 
+    def writeTofile(String fileName, String text){
+        def myFile = new File(fileName)
+        PrintWriter pr = new PrintWriter(myFile)
+        try{
+            pr.println(text)
+        }finally {
+            pr.close()
+        }
+    }
     @TaskAction
     def build() {
         ObjectMapper mapper = new ObjectMapper();
@@ -89,6 +98,14 @@ class NugetMonkey extends Ikvm {
             addOneReference(projFile, new File(it))
         }
 
+        String projectVariables = "<Project xmlns=\"http://schemas.microsoft.com/developer/msbuild/2003\">\n" +
+                "  <PropertyGroup>\n" +
+                "    <IKVMHome>${home}</IKVMHome>\n" +
+                "    <ProjectHome>${new File(".").getAbsolutePath()}</ProjectHome>\n" +
+                "  </PropertyGroup>\n" +
+                "</Project>"
+        writeTofile "ProjectVariables.txt",projectVariables
+
         def jsonOutput = "["
         project.configurations.compile.resolvedConfiguration.firstLevelModuleDependencies.each { dep ->
             def addToJson
@@ -151,13 +168,9 @@ class NugetMonkey extends Ikvm {
             jsonOutput = jsonOutput[0..-2]
         }
         jsonOutput += "]"
-        def myFile = new File("deps.json")
-        PrintWriter pr = new PrintWriter(myFile)
-        try{
-            pr.println(jsonOutput)
-        }finally {
-            pr.close()
-        }
+
+        writeTofile "deps.json",jsonOutput
+
     }
     def addOneReference(String projFile, File destFile) {
         // println(projFile)
