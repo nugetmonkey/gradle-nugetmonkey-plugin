@@ -41,17 +41,51 @@ class NugetMonkey extends Ikvm {
                 }
             }
         }
-        List<String> lstIKVM = new LinkedList<>();
-        def home = resolveIkvmHome().getAbsolutePath()
-        lstIKVM.add "${home}\\bin\\ICSharpCode.SharpZipLib.dll"
-        lstIKVM.add "${home}\\bin\\IKVM.AWT.WinForms.dll"
-        lstIKVM.add "${home}\\bin\\IKVM.OpenJDK.Core.dll"
-        lstIKVM.add "${home}\\bin\\IKVM.OpenJDK.Tools.dll"
-        lstIKVM.add "${home}\\bin\\IKVM.Reflection.dll"
-        lstIKVM.add "${home}\\bin\\IKVM.Runtime.JNI.dll"
-        lstIKVM.add "${home}\\bin\\IKVM.Runtime.dll"
 
-        lstIKVM.each {
+        def home = resolveIkvmHome().getAbsolutePath()
+
+        List<String> lstIKVMIKVMc = new LinkedList<>();
+        lstIKVMIKVMc.add "${home}\\bin\\ICSharpCode.SharpZipLib.dll"
+        lstIKVMIKVMc.add "${home}\\bin\\IKVM.AWT.WinForms.dll"
+        lstIKVMIKVMc.add "${home}\\bin\\IKVM.OpenJDK.Core.dll"
+        lstIKVMIKVMc.add "${home}\\bin\\IKVM.OpenJDK.Tools.dll"
+        lstIKVMIKVMc.add "${home}\\bin\\IKVM.Reflection.dll"
+        lstIKVMIKVMc.add "${home}\\bin\\IKVM.Runtime.JNI.dll"
+        lstIKVMIKVMc.add "${home}\\bin\\IKVM.Runtime.dll"
+
+        lstIKVMIKVMc.each {
+            addOneReference(projFile, new File(it))
+        }
+
+        /**
+         * http://permalink.gmane.org/gmane.comp.java.ikvm.devel/4085
+         */
+        List<String> lstIKVMRequiredRefs = new LinkedList<>();
+        lstIKVMRequiredRefs.add "${home}\\bin\\IKVM.OpenJDK.Beans.dll"
+        lstIKVMRequiredRefs.add "${home}\\bin\\IKVM.OpenJDK.Charsets.dll"
+        lstIKVMRequiredRefs.add "${home}\\bin\\IKVM.OpenJDK.Cldrdata.dll"
+        lstIKVMRequiredRefs.add "${home}\\bin\\IKVM.OpenJDK.Corba.dll"
+        lstIKVMRequiredRefs.add "${home}\\bin\\IKVM.OpenJDK.Jdbc.dll"
+        lstIKVMRequiredRefs.add "${home}\\bin\\IKVM.OpenJDK.Localedata.dll"
+        lstIKVMRequiredRefs.add "${home}\\bin\\IKVM.OpenJDK.Management.dll"
+        lstIKVMRequiredRefs.add "${home}\\bin\\IKVM.OpenJDK.Media.dll"
+        lstIKVMRequiredRefs.add "${home}\\bin\\IKVM.OpenJDK.Misc.dll"
+        lstIKVMRequiredRefs.add "${home}\\bin\\IKVM.OpenJDK.Naming.dll"
+        lstIKVMRequiredRefs.add "${home}\\bin\\IKVM.OpenJDK.Nashorn.dll"
+        lstIKVMRequiredRefs.add "${home}\\bin\\IKVM.OpenJDK.Remoting.dll"
+        lstIKVMRequiredRefs.add "${home}\\bin\\IKVM.OpenJDK.Security.dll"
+        lstIKVMRequiredRefs.add "${home}\\bin\\IKVM.OpenJDK.SwingAWT.dll"
+        lstIKVMRequiredRefs.add "${home}\\bin\\IKVM.OpenJDK.Text.dll"
+        lstIKVMRequiredRefs.add "${home}\\bin\\IKVM.OpenJDK.Util.dll"
+        lstIKVMRequiredRefs.add "${home}\\bin\\IKVM.OpenJDK.XML.API.dll"
+        lstIKVMRequiredRefs.add "${home}\\bin\\IKVM.OpenJDK.XML.Bind.dll"
+        lstIKVMRequiredRefs.add "${home}\\bin\\IKVM.OpenJDK.XML.Crypto.dll"
+        lstIKVMRequiredRefs.add "${home}\\bin\\IKVM.OpenJDK.XML.Parse.dll"
+        lstIKVMRequiredRefs.add "${home}\\bin\\IKVM.OpenJDK.XML.Transform.dll"
+        lstIKVMRequiredRefs.add "${home}\\bin\\IKVM.OpenJDK.XML.WebServices.dll"
+        lstIKVMRequiredRefs.add "${home}\\bin\\IKVM.OpenJDK.XML.XPath.dll"
+
+        lstIKVMRequiredRefs.each {
             addOneReference(projFile, new File(it))
         }
 
@@ -104,7 +138,9 @@ class NugetMonkey extends Ikvm {
                         lst.add f.getAbsolutePath() //+ ".dll"
                     }
                 }
-                lst.addAll(lstIKVM)
+
+                lst.addAll(lstIKVMIKVMc)
+
                 def params = lst as String[]
 
                 buildOne(workingDep.getAbsolutePath(), fileWithoutExt, params)
