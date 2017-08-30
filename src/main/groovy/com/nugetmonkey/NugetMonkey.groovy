@@ -181,7 +181,8 @@ class NugetMonkey extends Ikvm {
         // println(projFile)
         if (!projFile.isEmpty() && !projFile.isAllWhitespace()) {
             String refPath = replaceFolders(destFile.path)
-            String projectRoot = replaceFolders(project.rootDir.path)
+            String projectRootReplaced = replaceFolders(project.rootDir.path)
+            String projectRoot = project.rootDir.path
             if (System.getProperty('os.name').toLowerCase(Locale.ROOT).contains('windows')) {
                 /*project.exec {
                     commandLine 'cmd', '/c', "powershell -command \"" + projectRoot + "/scripts/RemoveReference.ps1 " + projFile + " " + refPath + "\""
