@@ -179,8 +179,8 @@ class NugetMonkey extends Ikvm {
     }
     def replaceFolders(String path){
         return path
-                .replaceAll(Pattern.quote(resolveIkvmHome().getAbsolutePath()), "'" + TEX_IKVMHome + "'")
-                .replaceAll(Pattern.quote(project.rootDir.path),"'" + TEX_ProjectHome + "'")
+                .replaceAll(Pattern.quote(resolveIkvmHome().getAbsolutePath()),  TEX_IKVMHome )
+                .replaceAll(Pattern.quote(project.rootDir.path),TEX_ProjectHome )
     }
     def addOneReference(String projFile, File destFile) {
         // println(projFile)
@@ -193,14 +193,14 @@ class NugetMonkey extends Ikvm {
                     commandLine 'cmd', '/c', "powershell -command \"" + projectRoot + "/scripts/RemoveReference.ps1 " + projFile + " " + refPath + "\""
                 }*/
                 project.exec {
-                    commandLine 'cmd', '/c', "powershell -command \"" + projectRoot + "/scripts/AddReference.ps1 " + projFile + " " + refPath + " " + destFile.name + "\""
+                    commandLine 'cmd', '/c', "powershell -command \"" + projectRoot + "/scripts/AddReference.ps1 '" + projFile + "' '" + refPath + "' '" + destFile.name + "'\""
                 }
             } else {
 /*project.exec {
     commandLine 'sh', '-c', "powershell -command \"" + projectRoot + "/scripts/RemoveReference.ps1 " + projFile + " " + refPath + "\""
 }*/
                 project.exec {
-                    commandLine 'sh', '-c', "powershell -command \"" + projectRoot + "/scripts/AddReference.ps1 " + projFile + " " + refPath + " " + destFile.name + "\""
+                    commandLine 'sh', '-c', "powershell -command \"" + projectRoot + "/scripts/AddReference.ps1 '" + projFile + "' '" + refPath + "' '" + destFile.name + "'\""
                 }
             }
         }
