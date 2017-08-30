@@ -179,8 +179,8 @@ class NugetMonkey extends Ikvm {
     }
     def replaceFolders(String path){
         return path
-                .replaceAll(Pattern.quote(resolveIkvmHome().getAbsolutePath()), TEX_BackTick + TEX_IKVMHome)
-                .replaceAll(Pattern.quote(project.rootDir.path),TEX_BackTick + TEX_ProjectHome)
+                .replaceAll(Pattern.quote(resolveIkvmHome().getAbsolutePath()), "'" + TEX_IKVMHome + "'")
+                .replaceAll(Pattern.quote(project.rootDir.path),"'" + TEX_ProjectHome + "'")
     }
     def addOneReference(String projFile, File destFile) {
         // println(projFile)
