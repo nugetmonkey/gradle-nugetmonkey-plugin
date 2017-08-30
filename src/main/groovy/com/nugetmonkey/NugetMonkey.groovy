@@ -4,9 +4,11 @@ import org.apache.commons.io.FileUtils
 import org.codehaus.jackson.map.ObjectMapper
 import org.gradle.api.tasks.TaskAction
 
+import java.util.regex.Pattern
+
 class NugetMonkey extends Ikvm {
-    private static String TEX_IKVMHome = "\$(IKVMHome)"
-    private static String TEX_ProjectHome = "\$(ProjectHome)"
+    private static final String TEX_IKVMHome = "\$(IKVMHome)"
+    private static final String TEX_ProjectHome = "\$(ProjectHome)"
     NugetMonkey() {
         super()
         /*File debugFile = getDestinationDebugFile()
@@ -175,7 +177,7 @@ class NugetMonkey extends Ikvm {
         writeTofile "deps.json",jsonOutput
     }
     def replaceFolders(String path){
-        return path.replace( resolveIkvmHome().getAbsolutePath(), TEX_IKVMHome).replace(project.rootDir.path,TEX_ProjectHome)
+        return path.replace(Pattern.quote(resolveIkvmHome().getAbsolutePath()), TEX_IKVMHome).replace(Pattern.quote(project.rootDir.path),TEX_ProjectHome)
     }
     def addOneReference(String projFile, File destFile) {
         // println(projFile)
@@ -183,6 +185,8 @@ class NugetMonkey extends Ikvm {
             String refPath = replaceFolders(destFile.path)
             String projectRootReplaced = replaceFolders(project.rootDir.path)
             String projectRoot = project.rootDir.path
+            println(refPath)
+            println(TEX_IKVMHome)
             if (System.getProperty('os.name').toLowerCase(Locale.ROOT).contains('windows')) {
                 /*project.exec {
                     commandLine 'cmd', '/c', "powershell -command \"" + projectRoot + "/scripts/RemoveReference.ps1 " + projFile + " " + refPath + "\""
