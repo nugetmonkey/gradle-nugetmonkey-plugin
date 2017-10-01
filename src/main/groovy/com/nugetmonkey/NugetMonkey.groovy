@@ -107,7 +107,7 @@ class NugetMonkey extends Ikvm {
             }
             removeAllReferences(rootLibFolder)
             model.removedProjectDependencies = new String[0]
-            mapper.writeValueAsString(additionalDeps,  model)
+            mapper.writeValue(additionalDeps,  model)
         }
 
 
