@@ -41,8 +41,7 @@ class NugetMonkey extends Ikvm {
     def build() {
         ObjectMapper mapper = new ObjectMapper();
 
-        // Add dependencies provided through additional dependencies json file.
-
+        // Add or remove dependencies provided through additional dependencies json file.
         File additionalDeps = new File("./AdditionalJavaDependencies.json")
         if (additionalDeps.exists()) {
             GradleObjectModelModifications model = mapper.readValue(additionalDeps, GradleObjectModelModifications.class)
@@ -55,7 +54,7 @@ class NugetMonkey extends Ikvm {
                     }
                 }
                 if (model.removedProjectDependencies != null) {
-                    model.removedProjectDependencies().each { ad ->
+                    model.getRemovedProjectDependencies().each { ad ->
                         removeOneReference(new File(ad))
                     }
                 }
