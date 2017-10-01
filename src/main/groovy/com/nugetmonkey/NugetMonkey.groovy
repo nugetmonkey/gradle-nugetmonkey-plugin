@@ -10,6 +10,9 @@ class NugetMonkey extends Ikvm {
     private static final String TEX_IKVMHome = "\\\$\\(IKVMHome\\)"
     private static final String TEX_ProjectHome = "\\\$\\(ProjectHome\\)"
     private static final String TEX_BackTick = "`"
+    private static final File additionalDeps = new File("./AdditionalJavaDependencies.json")
+    private static final ObjectMapper mapper = new ObjectMapper();
+
     NugetMonkey() {
         super()
         /*File debugFile = getDestinationDebugFile()
@@ -27,7 +30,15 @@ class NugetMonkey extends Ikvm {
             return false;
         }*/
     }
-
+    private static getNugetMonkeyDependencyModel(){
+        if (additionalDeps.exists()) {
+            GradleObjectModelModifications model = mapper.readValue(additionalDeps, GradleObjectModelModifications.class)
+            if (model != null) {
+                return model
+            }
+        }
+        return new GradleObjectModelModifications();
+    }
     def writeTofile(String fileName, String text){
         def myFile = new File(fileName)
         PrintWriter pr = new PrintWriter(myFile)
@@ -39,24 +50,12 @@ class NugetMonkey extends Ikvm {
     }
     @TaskAction
     def build() {
-        ObjectMapper mapper = new ObjectMapper();
-
-        // Add or remove dependencies provided through additional dependencies json file.
-        File additionalDeps = new File("./AdditionalJavaDependencies.json")
-        if (additionalDeps.exists()) {
-            GradleObjectModelModifications model = mapper.readValue(additionalDeps, GradleObjectModelModifications.class)
-            if (model != null) {
-                if (model.additionalProjectDependencies != null) {
-                    model.getAdditionalProjectDependencies().each { ad ->
-                        project.dependencies {
-                            "compile" "$ad"
-                        }
-                    }
-                }
-                if (model.removedProjectDependencies != null) {
-                    model.getRemovedProjectDependencies().each { ad ->
-                        removeOneReference(new File(ad))
-                    }
+        // Add dependencies provided through additional dependencies json file.
+        GradleObjectModelModifications model = getNugetMonkeyDependencyModel()
+        if (model.additionalProjectDependencies != null) {
+            model.getAdditionalProjectDependencies().each { ad ->
+                project.dependencies {
+                    "compile" "$ad"
                 }
             }
         }
@@ -145,7 +144,6 @@ class NugetMonkey extends Ikvm {
                     }
                 }
                 jsonOutput += "]},"
-
                 def workingDep = resolvedDep.getModuleArtifacts()[0].file
                 def curDep = workingDep.getName()
                 String fileWithoutExt = curDep.take(curDep.lastIndexOf('.'))
@@ -169,6 +167,27 @@ class NugetMonkey extends Ikvm {
                 lst.addAll(lstIKVMIKVMc)
 
                 def params = lst as String[]
+
+
+                if (model.removedProjectDependencies != null) {
+                    model.getRemovedProjectDependencies().each { ad ->
+                        try {
+                            String[] spltd = ad.toLowerCase(Locale.US).split("[:]")
+                            if (resolvedDep.module.id.group.toLowerCase(Locale.US).equals(spltd[0])
+                                    && resolvedDep.module.id.name.toLowerCase(Locale.US).equals(spltd[1])
+                            ) {
+                                def fl = resolvedDep.getModuleArtifacts()[0].file
+                                def cd = fl.getName()
+                                String cdWe = cd.take(cd.lastIndexOf('.'))
+
+                                String dll = destinationDir.getAbsolutePath() + "/" + cdWe + ".dll"
+                                removeOneReference(new File(dll))
+                            }
+                        } catch (Exception e) {
+                            logger.error("Error when removing reference: $ad")
+                        }
+                    }
+                }
 
                 buildOne(workingDep.getAbsolutePath(), fileWithoutExt, params)
             }
