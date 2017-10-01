@@ -45,14 +45,19 @@ class NugetMonkey extends Ikvm {
 
         File additionalDeps = new File("./AdditionalJavaDependencies.json")
         if (additionalDeps.exists()) {
-            GradleObjectModelModifications additionalModel = mapper.readValue(additionalDeps, GradleObjectModelModifications.class)
-            if (additionalModel != null) {
-                additionalModel.getAdditionalProjectDependencies().each { ad ->
-                    //project.afterEvaluate {
+            GradleObjectModelModifications model = mapper.readValue(additionalDeps, GradleObjectModelModifications.class)
+            if (model != null) {
+                if (model.additionalProjectDependencies != null) {
+                    model.getAdditionalProjectDependencies().each { ad ->
                         project.dependencies {
                             "compile" "$ad"
                         }
-                    //}
+                    }
+                }
+                if (model.removedProjectDependencies != null) {
+                    model.removedProjectDependencies().each { ad ->
+                        removeOneReference(new File(ad))
+                    }
                 }
             }
         }
@@ -183,22 +188,15 @@ class NugetMonkey extends Ikvm {
                 .replaceAll(Pattern.quote(project.rootDir.path),TEX_ProjectHome )
     }
     def addOneReference(String projFile, File destFile) {
-        // println(projFile)
         if (!projFile.isEmpty() && !projFile.isAllWhitespace()) {
             String refPath = replaceFolders(destFile.path)
             String projectRoot = project.rootDir.path
-            println(refPath)
+            println("Adding " + refPath + "..")
             if (System.getProperty('os.name').toLowerCase(Locale.ROOT).contains('windows')) {
-                /*project.exec {
-                    commandLine 'cmd', '/c', "powershell -command \"" + projectRoot + "/scripts/RemoveReference.ps1 " + projFile + " " + refPath + "\""
-                }*/
                 project.exec {
                     commandLine 'cmd', '/c', "powershell -command \"" + projectRoot + "/scripts/AddReference.ps1 '" + projFile + "' '" + refPath + "' '" + destFile.name + "'\""
                 }
             } else {
-/*project.exec {
-    commandLine 'sh', '-c', "powershell -command \"" + projectRoot + "/scripts/RemoveReference.ps1 " + projFile + " " + refPath + "\""
-}*/
                 project.exec {
                     commandLine 'sh', '-c', "powershell -command \"" + projectRoot + "/scripts/AddReference.ps1 '" + projFile + "' '" + refPath + "' '" + destFile.name + "'\""
                 }
@@ -208,7 +206,26 @@ class NugetMonkey extends Ikvm {
     def addOneReference() {
         addOneReference(  projFile,   destFile)
     }
-
+    def removeOneReference(String projFile, File destFile) {
+        // println(projFile)
+        if (!projFile.isEmpty() && !projFile.isAllWhitespace()) {
+            String refPath = replaceFolders(destFile.path)
+            String projectRoot = project.rootDir.path
+            println("Removing " + refPath + "..")
+            if (System.getProperty('os.name').toLowerCase(Locale.ROOT).contains('windows')) {
+                project.exec {
+                    commandLine 'cmd', '/c', "powershell -command \"" + projectRoot + "/scripts/RemoveReference.ps1 '" + projFile + "' '" + refPath + "'\""
+                }
+            } else {
+                project.exec {
+                    commandLine 'sh', '-c', "powershell -command \"" + projectRoot + "/scripts/RemoveReference.ps1 '" + projFile + "' '" + refPath + "'\""
+                }
+            }
+        }
+    }
+    def removeOneReference(File destFile) {
+        removeOneReference(  projFile,   destFile)
+    }
     def buildOne(String thisJar, String name, String[] refsIn) {
         jars thisJar
         assemblyName name
