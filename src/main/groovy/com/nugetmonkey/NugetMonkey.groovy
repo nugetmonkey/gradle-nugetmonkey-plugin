@@ -104,6 +104,7 @@ class NugetMonkey extends Ikvm {
                 if(it.path.endsWith(".dll")){
                     removeOneReference(it)
                 }
+                it.delete()
             }
             removeAllReferences(rootLibFolder)
             model.removedProjectDependencies = new String[0]
