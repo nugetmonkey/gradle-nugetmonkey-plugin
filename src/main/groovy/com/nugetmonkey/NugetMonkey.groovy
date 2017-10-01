@@ -50,16 +50,6 @@ class NugetMonkey extends Ikvm {
     }
     @TaskAction
     def build() {
-        // Add dependencies provided through additional dependencies json file.
-        GradleObjectModelModifications model = getNugetMonkeyDependencyModel()
-        if (model.additionalProjectDependencies != null) {
-            model.getAdditionalProjectDependencies().each { ad ->
-                project.dependencies {
-                    "compile" "$ad"
-                }
-            }
-        }
-
         def home = resolveIkvmHome().getAbsolutePath()
 
         List<String> lstIKVMIKVMc = new LinkedList<>()
@@ -70,10 +60,6 @@ class NugetMonkey extends Ikvm {
         lstIKVMIKVMc.add "${home}\\bin\\IKVM.Reflection.dll"
         lstIKVMIKVMc.add "${home}\\bin\\IKVM.Runtime.JNI.dll"
         lstIKVMIKVMc.add "${home}\\bin\\IKVM.Runtime.dll"
-
-        lstIKVMIKVMc.each {
-            addOneReference(projFile, new File(it))
-        }
 
         /**
          * http://permalink.gmane.org/gmane.comp.java.ikvm.devel/4085
@@ -102,6 +88,41 @@ class NugetMonkey extends Ikvm {
         lstIKVMRequiredRefs.add "${home}\\bin\\IKVM.OpenJDK.XML.Transform.dll"
         lstIKVMRequiredRefs.add "${home}\\bin\\IKVM.OpenJDK.XML.WebServices.dll"
         lstIKVMRequiredRefs.add "${home}\\bin\\IKVM.OpenJDK.XML.XPath.dll"
+
+        GradleObjectModelModifications model = getNugetMonkeyDependencyModel()
+
+        if (model.removedProjectDependencies != null) {
+
+            lstIKVMIKVMc.each {
+                removeOneReference(new File(it))
+            }
+            lstIKVMRequiredRefs.each {
+                removeOneReference(new File(it))
+            }
+            File rootLibFolder = new File(project.rootDir, "build/libs/");
+            rootLibFolder.listFiles().each {
+                if(it.path.endsWith(".dll")){
+                    removeOneReference(it)
+                }
+            }
+            removeAllReferences(rootLibFolder)
+            model.removedProjectDependencies = new String[0]
+            mapper.writeValueAsString(additionalDeps,  model)
+        }
+
+
+        // Add dependencies provided through additional dependencies json file.
+        if (model.additionalProjectDependencies != null) {
+            model.getAdditionalProjectDependencies().each { ad ->
+                project.dependencies {
+                    "compile" "$ad"
+                }
+            }
+        }
+
+        lstIKVMIKVMc.each {
+            addOneReference(projFile, new File(it))
+        }
 
         lstIKVMRequiredRefs.each {
             addOneReference(projFile, new File(it))
@@ -167,7 +188,6 @@ class NugetMonkey extends Ikvm {
                 lst.addAll(lstIKVMIKVMc)
 
                 def params = lst as String[]
-
 
                 if (model.removedProjectDependencies != null) {
                     model.getRemovedProjectDependencies().each { ad ->
@@ -243,6 +263,26 @@ class NugetMonkey extends Ikvm {
     }
     def removeOneReference(File destFile) {
         removeOneReference(  projFile,   destFile)
+    }
+    def removeAllReferences(String projFile, File destFile) {
+        // println(projFile)
+        if (!projFile.isEmpty() && !projFile.isAllWhitespace()) {
+            String refPath = replaceFolders(destFile.path)
+            String projectRoot = project.rootDir.path
+            println("Removing " + refPath + "..")
+            if (System.getProperty('os.name').toLowerCase(Locale.ROOT).contains('windows')) {
+                project.exec {
+                    commandLine 'cmd', '/c', "powershell -command \"" + projectRoot + "/scripts/RemoveAllReferences.ps1 '" + projFile + "' '" + refPath + "'\""
+                }
+            } else {
+                project.exec {
+                    commandLine 'sh', '-c', "powershell -command \"" + projectRoot + "/scripts/RemoveAllReferences.ps1 '" + projFile + "' '" + refPath + "'\""
+                }
+            }
+        }
+    }
+    def removeAllReferences(File destFile) {
+        removeAllReferences(  projFile,   destFile)
     }
     def buildOne(String thisJar, String name, String[] refsIn) {
         jars thisJar
