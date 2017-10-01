@@ -99,7 +99,7 @@ class NugetMonkey extends Ikvm {
             lstIKVMRequiredRefs.each {
                 removeOneReference(new File(it))
             }
-            File rootLibFolder = new File(project.rootDir, "build/libs/");
+            File rootLibFolder = new File(project.rootDir, "build/libs/")
             rootLibFolder.listFiles().each {
                 if(it.path.endsWith(".dll")){
                     removeOneReference(it)
