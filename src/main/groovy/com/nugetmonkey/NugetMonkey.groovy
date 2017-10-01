@@ -91,7 +91,7 @@ class NugetMonkey extends Ikvm {
 
         GradleObjectModelModifications model = getNugetMonkeyDependencyModel()
 
-        if (model.removedProjectDependencies != null) {
+        if (model.removedProjectDependencies != null && model.removedProjectDependencies.length>0) {
 
             lstIKVMIKVMc.each {
                 removeOneReference(new File(it))
